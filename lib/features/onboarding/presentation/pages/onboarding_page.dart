@@ -26,9 +26,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       await ref.read(preferencesProvider.notifier).completeOnboarding();
       if (mounted) context.go(RouteNames.home);
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(context.l10n.saveError)));
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -123,7 +124,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text('${_step + 1} / ${steps.length}', style: Theme.of(context).textTheme.labelMedium),
+                Text(
+                  '${_step + 1} / ${steps.length}',
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
                 const SizedBox(height: 28),
                 AppButton(
                   label: _step == steps.length - 1

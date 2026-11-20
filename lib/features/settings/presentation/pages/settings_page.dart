@@ -25,9 +25,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     try {
       await ref.read(preferencesProvider.notifier).setTheme(theme);
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(context.l10n.saveError)));
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }

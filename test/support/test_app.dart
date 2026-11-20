@@ -54,7 +54,10 @@ Future<GoRouter> pumpTestApp(
         ),
         appRouterProvider.overrideWithValue(router),
       ],
-      child: const RepaintBoundary(key: ValueKey('app-preview'), child: QuillGradeApp()),
+      child: const RepaintBoundary(
+        key: ValueKey('app-preview'),
+        child: QuillGradeApp(),
+      ),
     ),
   );
   await tester.pumpAndSettle();
@@ -64,7 +67,11 @@ Future<GoRouter> pumpTestApp(
 Future<void> tapText(WidgetTester tester, String label) async {
   final matches = find.text(label);
   if (matches.evaluate().isEmpty) {
-    await tester.scrollUntilVisible(matches, 200, scrollable: find.byType(Scrollable).first);
+    await tester.scrollUntilVisible(
+      matches,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
   }
   final finder = matches.last;
   await tester.ensureVisible(finder);
