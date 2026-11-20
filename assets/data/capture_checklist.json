@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Capture preparation, not certified grading standards",
+  "views": ["end", "side"],
+  "samePhysicalQuillRequired": true,
+  "measureLength": false,
+  "defaultMarkerSizeMm": 20,
+  "endViewRequirements": ["validated_cinnamon_identity", "one_quill", "correct_orientation", "visible_cross_section", "sharp_image", "even_lighting", "aruco_marker", "same_measurement_plane"],
+  "sideViewPurpose": "finishing_only"
+}
