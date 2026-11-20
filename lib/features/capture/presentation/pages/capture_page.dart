@@ -9,7 +9,6 @@ import '../widgets/capture_stepper.dart';
 
 class CapturePage extends StatelessWidget {
   const CapturePage({super.key});
-
   @override
   Widget build(BuildContext context) {
     final text = context.l10n;
@@ -17,10 +16,14 @@ class CapturePage extends StatelessWidget {
       title: text.capture,
       subtitle: text.captureSubtitle,
       children: [
-        const CaptureStepper(),
-        const SizedBox(height: 18),
-        Text(text.sameQuill, style: Theme.of(context).textTheme.bodyMedium),
+        StatusCard(
+          title: text.detectionMissing,
+          message: text.detectionMissingBody,
+          icon: Icons.lock_outline_rounded,
+        ),
         SectionHeading(text.readyChecklist),
+        Text(text.sameQuill),
+        const SizedBox(height: 16),
         for (final item in [
           (
             text.endView,
@@ -40,23 +43,37 @@ class CapturePage extends StatelessWidget {
               borderRadius: BorderRadius.circular(24),
               onTap: () => context.push(item.$4),
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      item.$3,
-                      size: 30,
-                      color: Theme.of(context).colorScheme.primary,
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primaryContainer,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Icon(
+                            item.$3,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Text(
+                            item.$1,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 20),
-                    Text(
-                      item.$1,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 14),
                     Text(item.$2),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 18),
                     Row(
                       children: [
                         Expanded(
@@ -76,19 +93,21 @@ class CapturePage extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
         ],
-        StatusCard(
-          title: text.detectionMissing,
-          message: text.detectionMissingBody,
-          warning: true,
-          icon: Icons.lock_outline_rounded,
-        ),
+        SectionHeading(text.workflowTitle),
+        const CaptureStepper(),
         const SizedBox(height: 16),
+        OutlinedButton.icon(
+          onPressed: () => context.push(RouteNames.results),
+          icon: const Icon(Icons.fact_check_outlined),
+          label: Text(text.viewResultsLayout),
+        ),
+        const SizedBox(height: 20),
         StatusCard(
           title: text.finishingMissing,
           message: text.finishingMissingBody,
-          icon: Icons.model_training_rounded,
+          icon: Icons.model_training_outlined,
         ),
       ],
     );

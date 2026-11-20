@@ -5,13 +5,14 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/l10n/l10n.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_tokens.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/brand_logo.dart';
 import '../../../../shared/widgets/quill_illustration.dart';
 import '../../../settings/presentation/providers/preferences_provider.dart';
 
 class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
-
   @override
   ConsumerState<OnboardingPage> createState() => _OnboardingPageState();
 }
@@ -19,7 +20,6 @@ class OnboardingPage extends ConsumerStatefulWidget {
 class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   int _step = 0;
   bool _saving = false;
-
   Future<void> _finish() async {
     setState(() => _saving = true);
     try {
@@ -39,10 +39,18 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   Widget build(BuildContext context) {
     final text = context.l10n;
     final steps = [
-      (text.welcome, text.welcomeBody),
-      (text.onboardingEndTitle, text.onboardingEndBody),
-      (text.onboardingSideTitle, text.onboardingSideBody),
-      (text.onboardingOfflineTitle, text.onboardingOfflineBody),
+      (text.welcome, text.welcomeBody, text.detectCinnamon),
+      (text.onboardingEndTitle, text.onboardingEndBody, text.measureQuill),
+      (
+        text.onboardingSideTitle,
+        text.onboardingSideBody,
+        text.analyzeFinishing,
+      ),
+      (
+        text.onboardingOfflineTitle,
+        text.onboardingOfflineBody,
+        text.saveOffline,
+      ),
     ];
     return Scaffold(
       body: SafeArea(
@@ -50,45 +58,54 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 560),
             child: ListView(
-              padding: const EdgeInsets.all(28),
+              padding: const EdgeInsets.all(24),
               children: [
                 Row(
                   children: [
-                    Icon(
-                      Icons.spa_rounded,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(width: 10),
+                    const BrandLogo(size: 48),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         text.appName,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ),
+                    TextButton(
+                      onPressed: _saving ? null : _finish,
+                      child: Text(text.skip),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 28),
                 Container(
                   decoration: BoxDecoration(
                     color: AppColors.forest,
                     borderRadius: BorderRadius.circular(32),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: QuillIllustration(endView: _step == 1, height: 240),
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      QuillIllustration(endView: _step == 1, height: 200),
+                      Text(
+                        steps[_step].$3,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(color: Colors.white),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 28),
                 Text(
                   text.tagline,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    letterSpacing: 2,
                     color: Theme.of(context).colorScheme.secondary,
+                    letterSpacing: 1.5,
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
                 AnimatedSwitcher(
-                  duration: MediaQuery.disableAnimationsOf(context)
-                      ? Duration.zero
-                      : const Duration(milliseconds: 250),
+                  duration: AppTokens.motion(context),
                   child: Column(
                     key: ValueKey(_step),
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,7 +114,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                         steps[_step].$1,
                         style: Theme.of(context).textTheme.headlineLarge,
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
                       Text(
                         steps[_step].$2,
                         style: Theme.of(context).textTheme.bodyLarge,
@@ -105,34 +122,34 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 28),
+                const SizedBox(height: 24),
                 Row(
-                  children: List.generate(
-                    steps.length,
-                    (index) => AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      margin: const EdgeInsets.only(right: 7),
-                      width: index == _step ? 28 : 8,
-                      height: 7,
-                      decoration: BoxDecoration(
-                        color: index == _step
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.outlineVariant,
-                        borderRadius: BorderRadius.circular(6),
+                  children: [
+                    for (var i = 0; i < steps.length; i++)
+                      AnimatedContainer(
+                        duration: AppTokens.motion(context),
+                        width: i == _step ? 28 : 8,
+                        height: 6,
+                        margin: const EdgeInsets.only(right: 6),
+                        decoration: BoxDecoration(
+                          color: i == _step
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.outlineVariant,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                    ),
-                  ),
+                  ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 Text(
                   '${_step + 1} / ${steps.length}',
                   style: Theme.of(context).textTheme.labelMedium,
                 ),
-                const SizedBox(height: 28),
+                const SizedBox(height: 24),
                 AppButton(
-                  label: _step == steps.length - 1
-                      ? text.continueAsGuest
-                      : (_step == 0 ? text.getStarted : text.next),
+                  label: _step == steps.length - 1 || _step == 0
+                      ? text.getStarted
+                      : text.next,
                   busy: _saving,
                   onPressed: () {
                     if (_step == steps.length - 1) {
@@ -142,18 +159,16 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                     }
                   },
                 ),
-                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: _saving ? null : _finish,
+                  child: Text(text.continueAsGuest),
+                ),
                 if (_step > 0)
                   TextButton(
                     onPressed: _saving ? null : () => setState(() => _step--),
                     child: Text(text.back),
-                  )
-                else
-                  TextButton(
-                    onPressed: _saving ? null : _finish,
-                    child: Text(text.continueAsGuest),
                   ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 Text(
                   text.onboardingFootnote,
                   textAlign: TextAlign.center,

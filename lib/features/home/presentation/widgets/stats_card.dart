@@ -6,11 +6,12 @@ class StatsCard extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.unavailableLabel,
+    this.value,
   });
   final String label;
   final IconData icon;
   final String unavailableLabel;
-
+  final int? value;
   @override
   Widget build(BuildContext context) => Card(
     child: Padding(
@@ -18,19 +19,34 @@ class StatsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: Theme.of(context).colorScheme.primary, size: 22),
-          const SizedBox(height: 18),
-          Semantics(
-            label: '$label. $unavailableLabel',
-            child: ExcludeSemantics(
-              child: Text(
-                '—',
-                style: Theme.of(context).textTheme.headlineMedium,
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(9),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
-            ),
+              const Spacer(),
+              Semantics(
+                label: '$label. ${value ?? unavailableLabel}',
+                child: ExcludeSemantics(
+                  child: Text(
+                    value?.toString() ?? '—',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          Text(label, style: Theme.of(context).textTheme.labelMedium),
+          const SizedBox(height: 14),
+          Text(label, style: Theme.of(context).textTheme.labelLarge),
         ],
       ),
     ),

@@ -34,7 +34,7 @@ void main() {
       ('Capture', 'Two views. One careful inspection.'),
       ('History', 'Your inspections, kept close.'),
       ('Sync', 'Keep local work in your hands.'),
-      ('Study', 'Small details. Better observations.'),
+      ('Study', 'Explore Ceylon cinnamon grades, sizes and quality.'),
       ('Home', 'A little more insight into every quill.'),
     ]) {
       await tester.tap(find.widgetWithText(NavigationDestination, label));
@@ -134,6 +134,8 @@ void main() {
       );
       expect(store.value.onboardingComplete, isFalse);
       store.failWrite = false;
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
       await tapText(tester, 'Continue as guest');
       expect(find.byType(MainNavigationShell), findsOneWidget);
     },
@@ -146,28 +148,45 @@ void main() {
     expect(find.byType(MainNavigationShell), findsOneWidget);
   });
 
-  testWidgets(
-    'home does not substitute fabricated counts for unavailable storage',
-    (tester) async {
-      await pumpTestApp(tester);
-      await tester.scrollUntilVisible(find.text('Total samples'), 200);
-      expect(find.text('—'), findsNWidgets(3));
-      expect(find.text('0'), findsNothing);
-    },
-  );
+  testWidgets('home reads zero counts from a real empty SQLite database', (
+    tester,
+  ) async {
+    await pumpTestApp(tester);
+    await tester.scrollUntilVisible(find.text('Total samples'), 200);
+    expect(find.text('—'), findsNothing);
+    expect(find.text('0'), findsNWidgets(4));
+  });
 
   testWidgets(
-    'account routes collect no credentials before an auth contract exists',
+    'account routes cannot submit credentials before an auth contract exists',
     (tester) async {
       final router = await pumpTestApp(tester, location: RouteNames.profile);
       await tapText(tester, 'Sign in');
+      expect(find.byType(TextField), findsNWidgets(2));
+      await tester.scrollUntilVisible(
+        find.text('Account service not connected'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(find.text('Account service not connected'), findsOneWidget);
-      expect(find.byType(TextField), findsNothing);
+      expect(
+        tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+        isNull,
+      );
       router.go(RouteNames.register);
       await tester.pumpAndSettle();
+      expect(find.byType(TextField), findsNWidgets(2));
+      await tester.scrollUntilVisible(
+        find.text('Account service not connected'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(find.text('Account service not connected'), findsOneWidget);
-      expect(find.byType(TextField), findsNothing);
-      await tapText(tester, 'Return to workspace');
+      expect(
+        tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+        isNull,
+      );
+      await tapText(tester, 'Continue offline');
       expect(find.byType(MainNavigationShell), findsOneWidget);
     },
   );
@@ -195,6 +214,9 @@ void main() {
       RouteNames.register,
       RouteNames.calibration,
       RouteNames.reports,
+      RouteNames.results,
+      RouteNames.gradeDetail('c5-extra-special'),
+      RouteNames.gradeComparison,
     ]) {
       router.go(route);
       await tester.pumpAndSettle();

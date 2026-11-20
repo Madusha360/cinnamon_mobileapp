@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "title": "Department of Cinnamon Development, Sri Lanka — Post Harvest Technology, Table 1.1: Cinnamon Grades",
+    "url": "https://cinnamon.gov.lk/about-cinnamon/post-harvest-technology/",
+    "checkedAt": "2026-11-20"
+  },
+  "groups": [
+    {
+      "id": "alba",
+      "name": "Alba",
+      "description": "A single-grade group with a 6 mm reference quill diameter.",
+      "typeName": "Heen Kurundu (smooth cinnamon)"
+    },
+    {
+      "id": "continental",
+      "name": "Continental",
+      "description": "Five C grades, with reference quill diameters from 8 to 18 mm.",
+      "typeName": "Heen Kurundu (smooth cinnamon)"
+    },
+    {
+      "id": "mexican",
+      "name": "Mexican",
+      "description": "Three M grades, with reference quill diameters from 16 to 21 mm.",
+      "typeName": "Gorosu Kurundu (coarse cinnamon)"
+    },
+    {
+      "id": "hamburg",
+      "name": "Hamburg",
+      "description": "Four H grades, with reference quill diameters from 23 to 38 mm.",
+      "typeName": "Gorosu Kurundu (coarse cinnamon)"
+    }
+  ],
+  "grades": [
+    {
+      "id": "alba",
+      "name": "Alba",
+      "group": "alba",
+      "referenceDiameterMm": 6,
+      "description": "A reference grade in the Alba group.",
+      "appearance": null,
+      "finishingCharacteristics": null,
+      "imageAsset": null,
+      "imageAttribution": null,
+      "quillsPerKg": 45,
+      "foxingPercent": 10
+    },
+    {
+      "id": "c5-extra-special",
+      "name": "C5 Extra Special",
+      "group": "continental",
+      "referenceDiameterMm": 8,
+      "description": "A reference grade in the Continental group.",
+      "appearance": null,
+      "finishingCharacteristics": null,
+      "imageAsset": null,
+      "imageAttribution": null,
+      "quillsPerKg": 33,
+      "foxingPercent": 10
+    },
+    {
+      "id": "c5-special",
+      "name": "C5 Special",
+      "group": "continental",
+      "referenceDiameterMm": 10,
+      "description": "A reference grade in the Continental group.",
+      "appearance": null,
+      "finishingCharacteristics": null,
+      "imageAsset": null,
+      "imageAttribution": null,
+      "quillsPerKg": 30,
+      "foxingPercent": 10
+    },
+    {
+      "id": "c5",
+      "name": "C5",
+      "group": "continental",
+      "referenceDiameterMm": 12,
+      "description": "A reference grade in the Continental group.",
+      "appearance": null,
+      "finishingCharacteristics": null,
+      "imageAsset": null,
+      "imageAttribution": null,
+      "quillsPerKg": 27,
+      "foxingPercent": 15
+    },
+    {
+      "id": "c4",
+      "name": "C4",
+      "group": "continental",
+      "referenceDiameterMm": 16,
+      "description": "A reference grade in the Continental group.",
+      "appearance": null,
+      "finishingCharacteristics": null,
+      "imageAsset": null,
+      "imageAttribution": null,
+      "quillsPerKg": 22,
+      "foxingPercent": 15
+    },
+    {
+      "id": "c3",
+      "name": "C3",
+      "group": "continental",
+      "referenceDiameterMm": 18,
+      "description": "A reference grade in the Continental group.",
+      "appearance": null,
+      "finishingCharacteristics": null,
+      "imageAsset": null,
+      "imageAttribution": null,
+      "quillsPerKg": 20,
+      "foxingPercent": 20
+    },
+    {
+      "id": "m5-special",
+      "name": "M5 Special",
+      "group": "mexican",
+      "referenceDiameterMm": 16,
+      "description": "A reference grade in the Mexican group.",
+      "appearance": null,
+      "finishingCharacteristics": null,
+      "imageAsset": null,
+      "imageAttribution": null,
+      "quillsPerKg": 22,
+      "foxingPercent": 60
+    },
+    {
+      "id": "m5",
+      "name": "M5",
+      "group": "mexican",
+      "referenceDiameterMm": 18,
+      "description": "A reference grade in the Mexican group.",
+      "appearance": null,
+      "finishingCharacteristics": null,
+      "imageAsset": null,
+      "imageAttribution": null,
+      "quillsPerKg": 20,
+      "foxingPercent": 60
+    },
+    {
+      "id": "m4",
+      "name": "M4",
+      "group": "mexican",
+      "referenceDiameterMm": 21,
+      "description": "A reference grade in the Mexican group.",
+      "appearance": null,
+      "finishingCharacteristics": null,
+      "imageAsset": null,
+      "imageAttribution": null,
+      "quillsPerKg": 15,
+      "foxingPercent": 60
+    },
+    {
+      "id": "h1",
+      "name": "H1",
+      "group": "hamburg",
+      "referenceDiameterMm": 23,
+      "description": "A reference grade in the Hamburg group.",
+      "appearance": null,
+      "finishingCharacteristics": null,
+      "imageAsset": null,
+      "imageAttribution": null,
+      "quillsPerKg": 10,
+      "foxingPercent": 25
+    },
+    {
+      "id": "h2-special",
+      "name": "H2 Special",
+      "group": "hamburg",
+      "referenceDiameterMm": 25,
+      "description": "A reference grade in the Hamburg group.",
+      "appearance": null,
+      "finishingCharacteristics": null,
+      "imageAsset": null,
+      "imageAttribution": null,
+      "quillsPerKg": 9,
+      "foxingPercent": 40
+    },
+    {
+      "id": "h2",
+      "name": "H2",
+      "group": "hamburg",
+      "referenceDiameterMm": 32,
+      "description": "A reference grade in the Hamburg group.",
+      "appearance": null,
+      "finishingCharacteristics": null,
+      "imageAsset": null,
+      "imageAttribution": null,
+      "quillsPerKg": 7,
+      "foxingPercent": 55
+    },
+    {
+      "id": "h3",
+      "name": "H3",
+      "group": "hamburg",
+      "referenceDiameterMm": 38,
+      "description": "A reference grade in the Hamburg group.",
+      "appearance": null,
+      "finishingCharacteristics": null,
+      "imageAsset": null,
+      "imageAttribution": null,
+      "quillsPerKg": 6,
+      "foxingPercent": 65
+    }
+  ]
+}

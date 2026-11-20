@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quillgrade_mobile/app/router/route_names.dart';
 import 'package:quillgrade_mobile/core/storage/app_preferences_store.dart';
+import 'package:quillgrade_mobile/core/widgets/brand_logo.dart';
 
 import '../support/test_app.dart';
 
@@ -49,6 +50,13 @@ void main() {
               AppPreferences(onboardingComplete: true, theme: theme),
             ),
           );
+          await tester.runAsync(
+            () => precacheImage(
+              const AssetImage(BrandLogo.assetPath),
+              tester.element(find.byType(BrandLogo).first),
+            ),
+          );
+          await tester.pumpAndSettle();
           await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
           await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
           expect(tester.takeException(), isNull);
@@ -58,6 +66,11 @@ void main() {
               (RouteNames.onboarding, 'onboarding'),
               (RouteNames.capture, 'capture'),
               (RouteNames.study, 'study'),
+              (RouteNames.gradeDetail('alba'), 'grade-alba'),
+              (RouteNames.gradeComparison, 'grade-comparison'),
+              (RouteNames.login, 'login'),
+              (RouteNames.settings, 'settings'),
+              (RouteNames.results, 'results'),
             ]) {
               router.go(route);
               await tester.pumpAndSettle();
@@ -70,7 +83,7 @@ void main() {
                   format: ui.ImageByteFormat.png,
                 );
                 final output = File(
-                  'build/phase1-previews/$name-${theme.name}.png',
+                  'build/ui-study-previews/$name-${theme.name}.png',
                 );
                 await output.parent.create(recursive: true);
                 await output.writeAsBytes(data!.buffer.asUint8List());

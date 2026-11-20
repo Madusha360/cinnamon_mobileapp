@@ -6,6 +6,7 @@ import '../../../../app/l10n/l10n.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../core/storage/app_preferences_store.dart';
 import '../../../../core/widgets/app_page.dart';
+import '../../../../core/widgets/brand_logo.dart';
 import '../../../../core/widgets/loading_view.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/status_card.dart';
@@ -19,7 +20,6 @@ class SettingsPage extends ConsumerStatefulWidget {
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _saving = false;
-
   Future<void> _setTheme(ThemePreference theme) async {
     setState(() => _saving = true);
     try {
@@ -54,7 +54,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           ),
           data: (value) => Card(
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 children: [
                   for (final item in [
@@ -76,16 +76,17 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   ])
                     ListTile(
                       enabled: !_saving,
+                      selected: value.theme == item.$1,
+                      selectedTileColor: Theme.of(context)
+                          .colorScheme
+                          .primaryContainer,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      selected: item.$1 == value.theme,
-                      selectedTileColor: Theme.of(context).colorScheme.primary
-                          .withValues(alpha: 0.07),
                       leading: Icon(item.$3),
                       title: Text(item.$2),
                       trailing: Icon(
-                        item.$1 == value.theme
+                        value.theme == item.$1
                             ? Icons.radio_button_checked
                             : Icons.radio_button_off,
                       ),
@@ -102,43 +103,80 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           message: text.languageBody,
           icon: Icons.translate_rounded,
         ),
-        SectionHeading(text.workspaceSection),
+        SectionHeading(text.cameraSettings),
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.camera_alt_outlined),
+            title: Text(text.cameraPreferences),
+            subtitle: Text(text.cameraPreferencesBody),
+            trailing: const Icon(Icons.lock_outline_rounded),
+          ),
+        ),
+        SectionHeading(text.measurementSettings),
         Card(
           child: Column(
             children: [
               ListTile(
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 8,
-                ),
-                leading: const Icon(Icons.straighten_rounded),
+                leading: const Icon(Icons.qr_code_2_rounded),
                 title: Text(text.calibrationSettings),
-                subtitle: Text(text.calibrationSettingsBody),
+                subtitle: Text(text.millimeters20),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push(RouteNames.calibration),
               ),
               const Divider(indent: 20, endIndent: 20),
               ListTile(
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 8,
-                ),
+                leading: const Icon(Icons.straighten_rounded),
+                title: Text(text.displayUnits),
+                subtitle: Text(text.displayUnitsBody),
+              ),
+            ],
+          ),
+        ),
+        SectionHeading(text.dataSettings),
+        Card(
+          child: Column(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.cloud_sync_outlined),
+                title: Text(text.syncPreferences),
+                subtitle: Text(text.manualSync),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.go(RouteNames.sync),
+              ),
+              const Divider(indent: 20, endIndent: 20),
+              ListTile(
+                leading: const Icon(Icons.storage_outlined),
+                title: Text(text.storagePreferences),
+                subtitle: Text(text.storagePreferencesBody),
+              ),
+              const Divider(indent: 20, endIndent: 20),
+              ListTile(
+                leading: const Icon(Icons.ios_share_outlined),
+                title: Text(text.reports),
+                subtitle: Text(text.storageBody),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(RouteNames.reports),
+              ),
+            ],
+          ),
+        ),
+        SectionHeading(text.accountSettings),
+        Card(
+          child: Column(
+            children: [
+              ListTile(
                 leading: const Icon(Icons.account_circle_outlined),
-                title: Text(text.accountSettings),
-                subtitle: Text(text.accountSettingsBody),
+                title: Text(text.profile),
+                subtitle: Text(text.localGuest),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push(RouteNames.profile),
               ),
               const Divider(indent: 20, endIndent: 20),
               ListTile(
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 8,
-                ),
-                leading: const Icon(Icons.explore_outlined),
-                title: Text(text.replayOnboarding),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.push(RouteNames.onboarding),
+                enabled: false,
+                leading: const Icon(Icons.logout_rounded),
+                title: Text(text.logout),
+                subtitle: Text(text.logoutGuest),
               ),
             ],
           ),
@@ -147,21 +185,33 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         StatusCard(
           title: text.detectorStatus,
           message: text.finishingStatus,
-          icon: Icons.model_training_rounded,
-          warning: true,
-        ),
-        SectionHeading(text.storageTitle),
-        StatusCard(
-          title: text.reports,
-          message: text.storageBody,
-          icon: Icons.folder_outlined,
-          child: OutlinedButton(
-            onPressed: () => context.push(RouteNames.reports),
-            child: Text(text.reports),
-          ),
+          icon: Icons.model_training_outlined,
         ),
         SectionHeading(text.aboutTitle),
-        Text(text.aboutBody, style: Theme.of(context).textTheme.bodyMedium),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const BrandLogo(size: 72),
+                const SizedBox(height: 16),
+                Text(
+                  text.appName,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 8),
+                Text(text.aboutBody),
+                const SizedBox(height: 16),
+                OutlinedButton.icon(
+                  onPressed: () => context.push(RouteNames.onboarding),
+                  icon: const Icon(Icons.explore_outlined),
+                  label: Text(text.replayOnboarding),
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }

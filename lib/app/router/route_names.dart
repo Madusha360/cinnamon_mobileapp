@@ -6,6 +6,8 @@ abstract final class RouteNames {
   static const endCapture = '/capture/end';
   static const sideCapture = '/capture/side';
   static const history = '/history';
+  static String sampleDetail(String id) =>
+      '/history/samples/${Uri.encodeComponent(id)}';
   static const sync = '/sync';
   static const study = '/study';
   static const settings = '/settings';
@@ -14,4 +16,8 @@ abstract final class RouteNames {
   static const register = '/register';
   static const calibration = '/calibration';
   static const reports = '/reports';
+  static const results = '/results';
+  static const gradeComparison = '/study/compare';
+  static String gradeDetail(String id) =>
+      '/study/grades/${Uri.encodeComponent(id)}';
 }

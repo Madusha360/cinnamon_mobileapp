@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/l10n/l10n.dart';
+import '../../app/theme/app_tokens.dart';
 
 class MainNavigationShell extends StatelessWidget {
   const MainNavigationShell({super.key, required this.navigationShell});
@@ -51,17 +52,29 @@ class MainNavigationShell extends StatelessWidget {
           : navigationShell,
       bottomNavigationBar: wide
           ? null
-          : NavigationBar(
-              selectedIndex: navigationShell.currentIndex,
-              onDestinationSelected: select,
-              destinations: [
-                for (final item in items)
-                  NavigationDestination(
-                    icon: Icon(item.$2),
-                    selectedIcon: Icon(item.$3),
-                    label: item.$1,
+          : DecoratedBox(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                border: Border(
+                  top: BorderSide(
+                    color: Theme.of(context).colorScheme.outlineVariant,
                   ),
-              ],
+                ),
+              ),
+              child: NavigationBar(
+                animationDuration: AppTokens.motion(context),
+                height: 76,
+                selectedIndex: navigationShell.currentIndex,
+                onDestinationSelected: select,
+                destinations: [
+                  for (final item in items)
+                    NavigationDestination(
+                      icon: Icon(item.$2),
+                      selectedIcon: Icon(item.$3),
+                      label: item.$1,
+                    ),
+                ],
+              ),
             ),
     );
   }

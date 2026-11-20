@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../app/theme/app_tokens.dart';
+
 class AppPage extends StatelessWidget {
   const AppPage({
     super.key,
@@ -8,26 +10,49 @@ class AppPage extends StatelessWidget {
     required this.children,
     this.actions,
     this.leading,
+    this.titleWidget,
+    this.heading,
   });
   final String title;
   final String subtitle;
   final List<Widget> children;
   final List<Widget>? actions;
   final Widget? leading;
+  final Widget? titleWidget;
+  final String? heading;
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(leading: leading, title: Text(title), actions: actions),
+    appBar: AppBar(
+      leading: leading,
+      title:
+          titleWidget ??
+          Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+      actions: actions,
+    ),
     body: SafeArea(
       top: false,
       child: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 880),
+          constraints: const BoxConstraints(maxWidth: AppTokens.contentWidth),
           child: ListView(
             key: PageStorageKey(title),
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 28),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: const EdgeInsets.fromLTRB(
+              AppTokens.pagePadding,
+              8,
+              AppTokens.pagePadding,
+              32,
+            ),
             children: [
+              if (heading != null) ...[
+                Text(
+                  heading!,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: 10),
+              ],
               Text(
                 subtitle,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -48,7 +73,6 @@ class SectionHeading extends StatelessWidget {
   const SectionHeading(this.title, {super.key, this.action});
   final String title;
   final Widget? action;
-
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(top: 28, bottom: 14),

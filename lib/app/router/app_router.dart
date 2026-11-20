@@ -10,13 +10,17 @@ import '../../features/capture/presentation/pages/capture_page.dart';
 import '../../features/capture/presentation/pages/end_capture_page.dart';
 import '../../features/capture/presentation/pages/side_capture_page.dart';
 import '../../features/history/presentation/pages/history_page.dart';
+import '../../features/history/presentation/pages/sample_detail_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/onboarding/presentation/pages/splash_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/reports/presentation/pages/reports_page.dart';
+import '../../features/results/presentation/pages/results_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/study/presentation/pages/study_page.dart';
+import '../../features/study/presentation/pages/grade_detail_page.dart';
+import '../../features/study/presentation/pages/grade_comparison_page.dart';
 import '../../features/sync/presentation/pages/sync_page.dart';
 import '../../shared/widgets/main_navigation_shell.dart';
 import '../l10n/l10n.dart';
@@ -66,6 +70,14 @@ GoRouter createAppRouter({
             GoRoute(
               path: RouteNames.history,
               builder: (_, _) => const HistoryPage(),
+              routes: [
+                GoRoute(
+                  path: 'samples/:sampleId',
+                  builder: (_, state) => SampleDetailPage(
+                    sampleId: state.pathParameters['sampleId']!,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -79,6 +91,20 @@ GoRouter createAppRouter({
             GoRoute(
               path: RouteNames.study,
               builder: (_, _) => const StudyPage(),
+              routes: [
+                GoRoute(
+                  path: 'compare',
+                  builder: (_, state) => GradeComparisonPage(
+                    initialGradeId: state.uri.queryParameters['first'],
+                  ),
+                ),
+                GoRoute(
+                  path: 'grades/:gradeId',
+                  builder: (_, state) => GradeDetailPage(
+                    gradeId: state.pathParameters['gradeId']!,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -93,6 +119,7 @@ GoRouter createAppRouter({
       builder: (_, _) => const CalibrationPage(),
     ),
     GoRoute(path: RouteNames.reports, builder: (_, _) => const ReportsPage()),
+    GoRoute(path: RouteNames.results, builder: (_, _) => const ResultsPage()),
   ],
   errorBuilder: (context, state) => Scaffold(
     body: SafeArea(

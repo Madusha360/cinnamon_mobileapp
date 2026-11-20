@@ -2,9 +2,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/storage/app_preferences_store.dart';
+import '../../../../core/storage/sqlite_preferences_store.dart';
+import '../../../../core/database/database_provider.dart';
 
 final preferencesStoreProvider = Provider<AppPreferencesStore>(
-  (ref) => LocalAppPreferencesStore(SharedPreferencesAsync()),
+  (ref) => SqlitePreferencesStore(
+    ref.watch(appDatabaseProvider),
+    LocalAppPreferencesStore(SharedPreferencesAsync()),
+  ),
 );
 final preferencesProvider =
     AsyncNotifierProvider<PreferencesController, AppPreferences>(
