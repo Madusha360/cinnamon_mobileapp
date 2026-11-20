@@ -54,7 +54,7 @@ Future<GoRouter> pumpTestApp(
         ),
         appRouterProvider.overrideWithValue(router),
       ],
-      child: const QuillGradeApp(),
+      child: const RepaintBoundary(key: ValueKey('app-preview'), child: QuillGradeApp()),
     ),
   );
   await tester.pumpAndSettle();
