@@ -62,7 +62,7 @@ The integration test exercises native startup and guest navigation; it may compl
 - [Proposed mobile API contract](docs/API_CONTRACT.md)
 - [Dataset and model requirements](docs/DATASET_GUIDE.md)
 - [Measurement requirements](docs/MEASUREMENT_GUIDE.md)
-- [Offline synchronization plan](docs/OFFLINE_SYNC.md)
+- [Offline storage and synchronization](docs/OFFLINE_SYNC.md)
 
 Dependency APIs were checked against the publisher documentation for [Riverpod](https://pub.dev/packages/flutter_riverpod), [GoRouter](https://pub.dev/documentation/go_router/latest/go_router/StatefulShellRoute-class.html), [shared preferences](https://pub.dev/packages/shared_preferences) and [Flutter localization](https://docs.flutter.dev/ui/internationalization). `pubspec.lock` records the resolved versions. Only dependencies used by this phase are installed.
 

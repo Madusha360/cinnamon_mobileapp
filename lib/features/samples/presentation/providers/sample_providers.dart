@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,16 +21,23 @@ final sampleRepositoryProvider = Provider<LocalSampleRepository>(
     ref.watch(localSyncQueueProvider),
   ),
 );
-final localStatisticsProvider = StreamProvider<LocalStatistics>(
-  (ref) => ref.watch(sampleRepositoryProvider).watchStatistics(),
-);
-final sampleListProvider =
-    StreamProvider.autoDispose.family<List<SampleRecord>, SampleQuery>(
+final localStatisticsProvider = StreamProvider<LocalStatistics>((ref) {
+  // Refresh the rolling date window even when no records are edited.
+  final timer = Timer.periodic(
+    const Duration(minutes: 1),
+    (_) => ref.invalidateSelf(),
+  );
+  ref.onDispose(timer.cancel);
+  return ref.watch(sampleRepositoryProvider).watchStatistics();
+});
+final sampleListProvider = StreamProvider.autoDispose
+    .family<List<SampleRecord>, SampleQuery>(
       (ref, query) => ref.watch(sampleRepositoryProvider).watchSamples(query),
     );
-final sampleDetailProvider = StreamProvider.autoDispose.family<SampleRecord?, String>(
-  (ref, id) => ref.watch(sampleRepositoryProvider).watchSample(id),
-);
+final sampleDetailProvider = StreamProvider.autoDispose
+    .family<SampleRecord?, String>(
+      (ref, id) => ref.watch(sampleRepositoryProvider).watchSample(id),
+    );
 
 final sampleImageProvider = FutureProvider.autoDispose.family<File?, String>(
   (ref, path) => ref.watch(imageStorageProvider).resolve(path),

@@ -3,9 +3,22 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:quillgrade_mobile/app/router/route_names.dart';
 import 'package:quillgrade_mobile/features/home/presentation/widgets/stats_card.dart';
 import 'package:quillgrade_mobile/features/samples/presentation/widgets/sample_card.dart';
+import 'package:quillgrade_mobile/features/samples/domain/sample.dart';
+import 'package:quillgrade_mobile/features/samples/data/local_sample_repository.dart';
 
 import '../support/storage_fixture.dart';
 import '../support/test_app.dart';
+
+class _ReadFailureRepository extends LocalSampleRepository {
+  _ReadFailureRepository(StorageFixture f) : super(f.db, f.images, f.queue);
+  bool failRead = true;
+  @override
+  Stream<List<SampleRecord>> watchSamples([
+    SampleQuery query = const SampleQuery(),
+  ]) => failRead
+      ? Stream.error(StateError('Isolated read failure'))
+      : super.watchSamples(query);
+}
 
 Future<StorageFixture> seed(WidgetTester tester) async {
   final f = (await tester.runAsync(() async {
@@ -22,11 +35,79 @@ Future<StorageFixture> seed(WidgetTester tester) async {
     );
     return f;
   }))!;
-  addTearDown(f.dispose);
+  addTearDown(() => tester.runAsync(f.dispose));
   return f;
 }
 
 void main() {
+  testWidgets(
+    'History read failures show retry and preserve existing SQLite records',
+    (tester) async {
+      final f = await seed(tester);
+      final repository = _ReadFailureRepository(f);
+      await pumpTestApp(
+        tester,
+        location: RouteNames.history,
+        database: f.db,
+        images: f.images,
+        repository: repository,
+      );
+      expect(find.text('Local records could not be loaded'), findsOneWidget);
+      repository.failRead = false;
+      await tapText(tester, 'Try again');
+      expect(find.byType(SampleCard), findsNWidgets(2));
+      expect((await f.repository.getAllSamples()).length, 2);
+    },
+  );
+
+  testWidgets(
+    'saved detail renders measured fixture results on a narrow screen',
+    (tester) async {
+      final f = await seed(tester);
+      final id = (await f.repository.getAllSamples()).first.id;
+      await f.repository.saveMeasurements(
+        id,
+        MeasurementInput(
+          calibrationId: StorageFixture.calibrationId,
+          algorithmVersion: 'test-only',
+          calculatedAt: StorageFixture.time,
+          maximumWidthMm: 12,
+          minimumWidthMm: 10,
+          equivalentDiameterMm: 11,
+          outerCircumferenceMm: 35,
+        ),
+      );
+      await f.repository.saveFinishingResult(
+        id,
+        FinishingInput(
+          modelId: StorageFixture.finishingId,
+          analyzedAt: StorageFixture.time,
+          quality: 'fixture-quality',
+          confidence: 0.8,
+        ),
+      );
+      await pumpTestApp(
+        tester,
+        location: RouteNames.sampleDetail(id),
+        database: f.db,
+        images: f.images,
+        repository: f.repository,
+        size: const Size(320, 740),
+        textScale: 2,
+      );
+      expect(find.text('12.00 mm'), findsOneWidget);
+      expect(find.text('10.00 mm'), findsOneWidget);
+      expect(find.text('11.00 mm'), findsOneWidget);
+      expect(find.text('35.00 mm'), findsOneWidget);
+      expect(find.text('fixture-quality (80.0%)'), findsOneWidget);
+      await tapText(tester, 'Delete sample');
+      expect(find.byType(AlertDialog), findsOneWidget);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets(
     'History loads SQLite records and applies search, filter and sorting',
     (tester) async {
@@ -160,7 +241,11 @@ void main() {
         (await f.repository.readSample(sample.id))!.notes,
         'Edited while offline',
       );
-      await tester.scrollUntilVisible(find.text('End View').first, 200);
+      await tester.scrollUntilVisible(
+        find.text('End View').first,
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.runAsync(() async {
         await Future<void>.delayed(const Duration(milliseconds: 30));
       });

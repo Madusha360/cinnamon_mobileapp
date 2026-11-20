@@ -26,9 +26,10 @@ class StoredImagePair {
 /// Copies originals without decoding, resizing, recompressing or moving sources.
 /// References are relative to app support, so sandbox relocation is safe.
 class ImageStorageService {
-  ImageStorageService({Future<Directory> Function()? root})
-    : _root = root ?? _privateRoot;
+  ImageStorageService({Future<Directory> Function()? root, Future<Directory> Function()? temporaryDirectory})
+    : _root = root ?? _privateRoot, _temporaryDirectory = temporaryDirectory ?? getTemporaryDirectory;
   final Future<Directory> Function() _root;
+  final Future<Directory> Function() _temporaryDirectory;
   static final _uuid = RegExp(
     r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
   );
@@ -49,6 +50,9 @@ class ImageStorageService {
     required File end,
     required File side,
   }) async {
+    if (await isSandboxCapture(end) || await isSandboxCapture(side)) {
+      throw const ImageStorageException('Debug captures cannot be promoted to permanent sample storage');
+    }
     if (!_uuid.hasMatch(sampleId)) {
       throw const ImageStorageException('Invalid sample identifier');
     }
@@ -145,5 +149,75 @@ class ImageStorageService {
       throw const ImageStorageException('Invalid cleanup target');
     }
     await directory.delete(recursive: true);
+  }
+
+  Future<Directory> _sandboxRoot() async => Directory(p.join((await _temporaryDirectory()).path, 'quillgrade', 'capture_sandbox'));
+
+  Future<bool> isSandboxCapture(File file) async {
+    final path = p.normalize(p.absolute(file.path));
+    final resolved = await file.exists() ? await file.resolveSymbolicLinks() : path;
+    if (!p.split(path).contains('capture_sandbox') && !p.split(resolved).contains('capture_sandbox')) return false;
+    final root = await _sandboxRoot();
+    if (await root.exists() && await file.exists()) {
+      return p.isWithin(await root.resolveSymbolicLinks(), resolved);
+    }
+    return p.isWithin(p.normalize(p.absolute(root.path)), path);
+  }
+
+  /// Takes ownership only of a camera-created file in the platform cache.
+  /// A same-filesystem rename preserves original bytes/EXIF without duplicates.
+  Future<File> adoptTemporaryCapture(String sessionId, String view, File source) async {
+    if (!_uuid.hasMatch(sessionId) || !{'end', 'side'}.contains(view)) throw const ImageStorageException('Invalid capture identity');
+    await _checkCameraOutput(source);
+    if (await source.length() == 0) throw const ImageStorageException('Empty camera output');
+    final root = await _sandboxRoot();
+    final directory = Directory(p.join(root.path, sessionId));
+    await directory.create(recursive: true);
+    if (!p.isWithin(await root.resolveSymbolicLinks(), await directory.resolveSymbolicLinks())) throw const ImageStorageException('Invalid capture directory');
+    final target = File(p.join(directory.path, '$view.original.jpg'));
+    if (await target.exists()) throw const ImageStorageException('Retake or discard the existing temporary photo first');
+    return source.rename(target.path);
+  }
+
+  Future<void> _checkCameraOutput(File source) async {
+    final cache = await _temporaryDirectory();
+    if (!await source.exists() || !await cache.exists() || !p.isWithin(await cache.resolveSymbolicLinks(), await source.resolveSymbolicLinks())) {
+      throw const ImageStorageException('Camera output is outside the device cache');
+    }
+  }
+
+  Future<void> discardCameraOutput(File source) async {
+    if (!await source.exists()) return;
+    await _checkCameraOutput(source);
+    await source.delete();
+  }
+
+  Future<void> discardTemporaryCapture(String sessionId, String view) async {
+    if (!_uuid.hasMatch(sessionId) || !{'end', 'side'}.contains(view)) throw const ImageStorageException('Invalid capture identity');
+    final file = File(p.join((await _sandboxRoot()).path, sessionId, '$view.original.jpg'));
+    if (!await file.exists()) return;
+    if (!await isSandboxCapture(file)) throw const ImageStorageException('Invalid temporary image');
+    await _checkCameraOutput(file);
+    await file.delete();
+  }
+
+  Future<void> discardTemporarySession(String sessionId) async {
+    if (!_uuid.hasMatch(sessionId)) throw const ImageStorageException('Invalid capture session');
+    final root = await _sandboxRoot();
+    final directory = Directory(p.join(root.path, sessionId));
+    if (!await directory.exists()) return;
+    if (!p.isWithin(await root.resolveSymbolicLinks(), await directory.resolveSymbolicLinks())) throw const ImageStorageException('Invalid temporary cleanup target');
+    await directory.delete(recursive: true);
+  }
+
+  /// Called before opening a new sandbox session after an app restart. Only
+  /// UUID directories in our dedicated cache are eligible, never originals.
+  Future<void> cleanTemporaryCaptures({String? keepSessionId}) async {
+    final root = await _sandboxRoot();
+    if (!await root.exists()) return;
+    await for (final entity in root.list(followLinks: false)) {
+      final id = p.basename(entity.path);
+      if (entity is Directory && _uuid.hasMatch(id) && id != keepSessionId) await discardTemporarySession(id);
+    }
   }
 }

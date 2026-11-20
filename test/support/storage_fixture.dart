@@ -24,6 +24,7 @@ class FixtureValidationGate implements CaptureValidationGate {
 class StorageFixture {
   StorageFixture._(this.directory, this.db, this.end, this.side) {
     images = ImageStorageService(
+      temporaryDirectory: () async => Directory(p.join(directory.path, 'camera_cache')),
       root: () async => Directory(p.join(directory.path, 'originals')),
     );
     clock = time;
@@ -51,12 +52,14 @@ class StorageFixture {
 
   static Future<StorageFixture> create({bool persistent = false}) async {
     final directory = await Directory.systemTemp.createTemp('quillgrade_test_');
-    final db = AppDatabase(DatabaseConnection(
-      persistent
-          ? NativeDatabase(File(p.join(directory.path, 'fixture.sqlite')))
-          : NativeDatabase.memory(),
-      closeStreamsSynchronously: true,
-    ));
+    final db = AppDatabase(
+      DatabaseConnection(
+        persistent
+            ? NativeDatabase(File(p.join(directory.path, 'fixture.sqlite')))
+            : NativeDatabase.memory(),
+        closeStreamsSynchronously: true,
+      ),
+    );
     final bytes = base64Decode(
       'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=',
     );

@@ -54,6 +54,15 @@ void main() {
         f.queue.acknowledge(lease, receipt(lease)),
         throwsStateError,
       );
+      await f.repository.updateSample(id, code: 'EDIT-AFTER-SYNC');
+      expect(
+        (await f.queue.watchLastSyncedAt().first)?.toUtc(),
+        StorageFixture.time,
+      );
+      expect(
+        (await f.repository.readSample(id))!.syncStatus,
+        SyncStatus.pending,
+      );
     },
   );
 

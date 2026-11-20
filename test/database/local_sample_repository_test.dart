@@ -17,6 +17,22 @@ void main() {
   tearDown(() => f.dispose());
 
   test(
+    'reactive recent counts recompute their rolling window as time advances',
+    () async {
+      final id = await f.repository.createSample(f.input());
+      final counts = StreamIterator(f.repository.watchStatistics());
+      await counts.moveNext();
+      expect(counts.current.recent, 1);
+      f.clock = f.clock.add(const Duration(days: 8));
+      await f.repository.updateSample(id, code: 'OLDER-NOW');
+      await counts.moveNext();
+      expect(counts.current.total, 1);
+      expect(counts.current.recent, 0);
+      await counts.cancel();
+    },
+  );
+
+  test(
     'initialization creates all nine tables, foreign keys and real zero counts',
     () async {
       expect(f.db.allTables.length, 9);

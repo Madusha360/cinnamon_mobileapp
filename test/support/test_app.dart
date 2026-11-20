@@ -72,7 +72,14 @@ Future<GoRouter> pumpTestApp(
   final router = createAppRouter(initialLocation: location);
   // Keep real SQLite queries, but disable Drift's one-tick stream cache during
   // fake-clock teardown. Each harness owns a distinct in-memory executor.
-  final db = database ?? AppDatabase(DatabaseConnection(NativeDatabase.memory(), closeStreamsSynchronously: true));
+  final db =
+      database ??
+      AppDatabase(
+        DatabaseConnection(
+          NativeDatabase.memory(),
+          closeStreamsSynchronously: true,
+        ),
+      );
   if (database == null) addTearDown(db.close);
   await tester.runAsync(() => db.customSelect('SELECT 1').get());
   addTearDown(router.dispose);
@@ -82,6 +89,7 @@ Future<GoRouter> pumpTestApp(
   );
   await tester.pumpWidget(
     ProviderScope(
+      key: UniqueKey(),
       retry: (_, _) => null,
       overrides: [
         appDatabaseProvider.overrideWithValue(db),
@@ -107,6 +115,13 @@ Future<GoRouter> pumpTestApp(
       ),
     ),
   );
+  // Flutter intentionally leaves the tree mounted when an assertion fails.
+  // Dispose its listeners before closing SQLite even on that failure path.
+  final container = ProviderScope.containerOf(
+    tester.element(find.byType(QuillGradeApp)),
+    listen: false,
+  );
+  addTearDown(container.dispose);
   await tester.pumpAndSettle();
   return router;
 }
@@ -122,6 +137,7 @@ Future<void> tapText(WidgetTester tester, String label) async {
   }
   final finder = matches.last;
   await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
   await tester.tap(finder);
   await tester.pumpAndSettle();
 }

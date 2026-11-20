@@ -10,19 +10,24 @@ assets/data/                  Capture preparation requirements
 lib/
   main.dart                   Flutter and ProviderScope bootstrap
   app/                        App composition, theme, router, localization
-  core/                       Configuration, UI preference storage, common widgets
-  features/                   Feature-owned presentation and settings provider
+  core/database/              Drift tables, generated schema, migration, connection
+  core/storage/               Private original images, SQLite preference import
+  core/widgets/               Shared UI and brand widgets
+  features/samples/           Sample domain, transactional repository, providers
+  features/history/           Existing library and saved-sample details UI
+  features/sync/              Persistent local queue and disconnected sync UI
+  features/                   Other existing feature-owned data/presentation
   shared/widgets/             Reusable navigation shell and vector illustration
 test/                         Isolated widget and preference tests
 integration_test/             Native-device guest navigation smoke test
 docs/                         Scope, ownership, contracts and implementation guides
 ```
 
-Phase 1 and the UI / offline Study enhancement are present. The Study feature now has real domain/data layers for its bundled reference catalogue. Create other domain/data layers when implementing their real behavior; do not prefill the approved structure with empty files. The original logo is in `assets/images/branding/`. Add grade photos, icons and models only when actual authorized assets exist. Decorative `CustomPainter` illustrations never serve as grade evidence.
+Phase 1, the UI / offline Study enhancement and Phase 2 persistence are present. Study retains its bundled reference repository. Samples now has domain/data/presentation layers, History reads that repository, and Sync owns its persistent queue. The original logo is in `assets/images/branding/`. Add grade photos, icons and models only when actual authorized assets exist. Decorative `CustomPainter` illustrations never serve as grade evidence.
 
 Presentation owns pages, providers and UI state. Domain will own sample entities, validated detection/measurement results and repository/engine interfaces. Data will implement Drift, camera, inference, native vision and REST adapters. SQL, networking and inference must stay out of widgets.
 
-Two small infrastructure additions serve this phase: `core/storage/app_preferences_store.dart` isolates persistent non-critical UI preferences, and `features/settings/presentation/providers/preferences_provider.dart` owns their asynchronous state. They do not implement a substitute sample database.
+`core/database/app_database.dart` opens one app-scoped native SQLite database through Riverpod. Its tables live in `core/database/tables.dart`. `core/storage/image_storage_service.dart` stores originals privately, while `sqlite_preferences_store.dart` imports existing UI preferences. Repository and queue methods own database transactions; widgets never execute SQL.
 
 `lib/app/l10n/app_en.arb` is the English source of truth. `flutter gen-l10n` generates ignored Dart files in `lib/app/l10n/generated/`; never edit generated output. Add a complete, reviewed `app_si.arb` to introduce Sinhala. Widgets use wrapping layouts and locale-independent navigation paths. No fonts are fetched at runtime.
 
@@ -36,8 +41,8 @@ Study owns nested `/study/grades/:gradeId` and `/study/compare` routes within it
 
 Shared branding lives in `core/widgets/brand_logo.dart`; the widget uses the supplied original PNG with `BoxFit.contain` and white backing. `app/theme/app_tokens.dart` centralizes reusable dimensions and reduced-motion durations. Existing buttons, cards, page scaffolds and navigation were extended instead of introducing a second design system. Flutter/platform typography is retained for dependable offline display.
 
-The auth pages share `auth/presentation/widgets/account_form.dart`. Input controllers are screen-local and disposed with the screen. Buttons cannot submit before a real auth adapter exists. Guest access and existing preference persistence are unchanged. History filters, automatic sync, camera preferences and saving are visibly unavailable where the underlying capability is not implemented.
+The auth pages share `auth/presentation/widgets/account_form.dart`. Input controllers are screen-local and disposed with the screen. Buttons cannot submit before a real auth adapter exists. Guest access and existing preference values are preserved. History search/filters/sorting are connected to SQLite. Automatic sync, camera preferences and capture saving remain unavailable.
 
-See [UI_STUDY_GUIDE.md](UI_STUDY_GUIDE.md) for the data schema, source attribution, reference-photo rules, comparisons and tests. No Phase 2 SQLite implementation was introduced.
+See [UI_STUDY_GUIDE.md](UI_STUDY_GUIDE.md) for reference data and provenance, and [PHASE_2_STORAGE.md](PHASE_2_STORAGE.md) for SQLite ownership and verification. `/history/samples/:sampleId` opens the saved-record review within the existing History tab.
 
-App preferences are versioned JSON in one namespaced native preference key. Updates are serialized; failed writes retain the previous state and permit retry. Startup loading/errors are visible. SQLite, sample identities and ownership are deliberately deferred to Phase 2.
+App preferences remain versioned JSON, now in a uniquely keyed `user_preferences` row. Updates are serialized; failed writes retain the previous state and permit retry. Startup loading/errors remain visible. There is no cloud ownership or authentication model yet; records belong to this local installation.

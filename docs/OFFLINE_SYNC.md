@@ -1,11 +1,21 @@
-# Offline-first storage and synchronization
+# Offline storage and synchronization
 
-Phase 1 makes no network requests and offers a local guest workspace. “Local mode” is an operating mode, not a measured network status. The Sync screen shows that no cloud connection exists. SQLite storage and a persistent queue are not implemented yet.
+Phase 2 uses Drift/SQLite as the local source of truth. The application has no HTTP client, backend adapter or upload worker. Offline guest access remains available. “Local mode” describes the operating mode; it does not claim to measure connectivity.
 
-Phase 2 must make Drift/SQLite the source of truth with transactional writes, migrations and stable UUID sample ownership. Planned tables: `samples`, `sample_images`, `measurements`, `finishing_results`, `calibrations`, `sync_jobs`, `user_preferences`, `study_notes`, `model_metadata`. Store originals in app-private file storage with database paths, not photo blobs or public-gallery assumptions. Protect deletion with confirmation; keep images intact on retries and server failures. Migrate non-critical Phase 1 preferences deliberately if moving them to Drift.
+The database lives at `getApplicationSupportDirectory()/quillgrade/quillgrade.sqlite`. The nine tables are `samples`, `sample_images`, `measurements`, `finishing_results`, `calibrations`, `sync_jobs`, `user_preferences`, `study_notes` and `model_metadata`. UUIDs identify entities; foreign keys and unique constraints protect their relationships. Measurement and classifier values stay null until supplied by future validated engines. No length field or length calculation exists.
 
-Phase 7 will add the confirmed HTTPS/Dio/auth adapter and persisted queue. Manual sync is the default. Wi-Fi-only automatic sync is optional; any-network uploads require explicit consent. Never enable automatic uploads merely by signing in. Grading, history and review must remain independent of sync/auth.
+End/Side originals are copied byte for byte into `quillgrade/originals/<sample UUID>/<view>.original.<extension>`. SQLite holds relative references, allowing the app sandbox location to change. A staging directory is renamed only after both copies succeed. Failed database insertion rolls back all rows and removes only that newly created pair. Originals from the source are never moved or recompressed.
 
-Queue states are `pending`, `uploading`, `synced`, `failed`, `conflict`. Persist retry attempts, bounded backoff, sample revision and idempotency information. On restart, recover interrupted uploads safely. Check authentication and server reachability; connectivity alone does not prove server availability. Surface progress, failures and conflicts. Do not log tokens or sensitive credentials.
+A sample insertion writes the sample, two image rows and one queue job in one transaction. Edits/results increment the local revision and reset its queue entry to pending in the same transaction. The idempotency key is `<sample UUID>:<revision>`; retrying the same revision keeps that key.
 
-Follow the exact upload/verification order in [API_CONTRACT.md](API_CONTRACT.md). Only server confirmation of the complete record and both images for the correct revision permits `synced`. A local revision changing during upload must remain pending. Retain originals after success. Duplicate retries must converge on the same stable sample UUID. Server response and conflict semantics must be confirmed before production integration.
+The local queue persists `pending`, `uploading`, `synced`, `failed` and `conflict`, with attempts, error text and next eligible attempt time. Claiming work creates a lease for the current revision and attempt. Late callbacks from superseded attempts/revisions are rejected. Failed retries use exponential delays starting at 30 seconds and capped at six hours; retry is explicit. Conflicts also require an explicit action. On database opening, interrupted uploading jobs return to pending; no upload starts automatically.
+
+Only a matching acknowledgement confirming the complete record and both originals can mark a lease synced. The acknowledgement API is exercised with isolated test receipts; production has no caller that invents server confirmations. Manual sync and automatic uploads remain disabled. Home/Sync counters are real SQLite aggregates.
+
+Confirmed removal creates a deletion tombstone and cancels the local queue transactionally. History, recent queries and statistics exclude removed samples. Original files and archived database records remain on-device. This is not a remote delete, permanent erasure or storage-reclamation feature. Deleted codes remain reserved. Future backend integration must define deletion semantics before adding remote deletes.
+
+Phase 1 appearance/onboarding JSON is imported once into `user_preferences`; its legacy key is retained, and subsequent reads/writes use SQLite. No credentials are stored. The Study catalogue remains bundled and independent of SQLite; the new study-notes table is a persistence foundation, not a new notes editor.
+
+Phase 7 will add the confirmed HTTPS/auth transport. Follow [API_CONTRACT.md](API_CONTRACT.md): validate server reachability, ownership, conflict semantics, payload and both-image confirmation before enabling production uploads. Any automatic upload policy needs explicit user consent. Retain originals after success.
+
+See [PHASE_2_STORAGE.md](PHASE_2_STORAGE.md) for validation, schema history and remaining limitations.

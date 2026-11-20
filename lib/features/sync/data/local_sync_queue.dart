@@ -48,13 +48,11 @@ class LocalSyncQueue {
   Stream<List<DbSyncJob>> watchJobs() => (db.select(
     db.syncJobs,
   )..orderBy([(t) => OrderingTerm.desc(t.updatedAt)])).watch();
-  Stream<DateTime?> watchLastSyncedAt() => db
-      .customSelect(
-        "SELECT MAX(updated_at) AS last_sync FROM sync_jobs WHERE status = 'synced'",
-        readsFrom: {db.syncJobs},
-      )
-      .map((r) => r.readNullable<DateTime>('last_sync'))
-      .watchSingle();
+  static const _lastSyncKey = 'sync.last_successful_at';
+  Stream<DateTime?> watchLastSyncedAt() =>
+      (db.select(db.userPreferences)..where((t) => t.key.equals(_lastSyncKey)))
+          .watchSingleOrNull()
+          .map((row) => row == null ? null : DateTime.parse(row.value));
 
   /// Called inside the same transaction as each sample mutation.
   Future<void> enqueue(String sampleId, int revision) async {
@@ -133,6 +131,30 @@ class LocalSyncQueue {
           );
         }
         await _transition(lease, SyncStatus.synced);
+        final time = _now().toUtc();
+        final previous = await (db.select(
+          db.userPreferences,
+        )..where((t) => t.key.equals(_lastSyncKey))).getSingleOrNull();
+        if (previous == null) {
+          await db
+              .into(db.userPreferences)
+              .insert(
+                UserPreferencesCompanion.insert(
+                  key: _lastSyncKey,
+                  value: time.toIso8601String(),
+                  updatedAt: time,
+                ),
+              );
+        } else {
+          await (db.update(
+            db.userPreferences,
+          )..where((t) => t.id.equals(previous.id))).write(
+            UserPreferencesCompanion(
+              value: Value(time.toIso8601String()),
+              updatedAt: Value(time),
+            ),
+          );
+        }
       });
 
   Future<void> fail(

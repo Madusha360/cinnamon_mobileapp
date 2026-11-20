@@ -32,7 +32,7 @@ All paths are relative to this independent mobile root. No future-phase placehol
 | `lib/features/history/presentation/pages/history_page.dart` | SQLite history, code/batch/note search, all five sync filters, date/code sorting and details navigation |
 | `lib/features/history/presentation/pages/sample_detail_page.dart` | Original images, nullable results, metadata editing, missing-record state and confirmed local removal |
 | `lib/features/sync/data/local_sync_queue.dart` | Persistent five-state queue, attempt leases, revisions, idempotency, backoff, conflict/retry and complete-acknowledgement guards; no transport |
-| `lib/features/sync/presentation/pages/sync_page.dart` | Manual-only policy and disconnected cloud state |
+| `lib/features/sync/presentation/pages/sync_page.dart` | Real local queue counts and last confirmed sync time, with disconnected cloud state and disabled upload controls |
 | `lib/features/study/domain/cinnamon_grade.dart` | Typed grades, groups, source provenance, catalogue validation and name/group filtering |
 | `lib/features/study/data/cinnamon_grade_data_source.dart`, `cinnamon_grade_repository.dart` | Bundled JSON loading through an injectable AssetBundle; no network/account dependency |
 | `lib/features/study/presentation/providers/study_provider.dart` | Async catalogue and retained search/category state |

@@ -27,6 +27,7 @@ class _SampleDetailPageState extends ConsumerState<SampleDetailPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        scrollable: true,
         title: Text(text.deleteSampleTitle),
         content: Text(text.deleteSampleBody),
         actions: [
@@ -238,6 +239,7 @@ class _EditSampleDialogState extends ConsumerState<_EditSampleDialog> {
   Widget build(BuildContext context) {
     final text = context.l10n;
     return AlertDialog(
+      scrollable: true,
       title: Text(text.editSample),
       content: SingleChildScrollView(
         child: Column(

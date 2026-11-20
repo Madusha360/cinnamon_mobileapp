@@ -332,13 +332,16 @@ class LocalSampleRepository {
     SELECT COUNT(*) AS total,
     COALESCE(SUM(sync_status != 'synced'), 0) AS pending,
     COALESCE(SUM(sync_status = 'synced'), 0) AS synced,
-    COALESCE(SUM(captured_at >= ?), 0) AS recent,
+    COALESCE(SUM(captured_at >= ? AND captured_at <= ?), 0) AS recent,
     COALESCE(SUM(sync_status = 'uploading'), 0) AS uploading,
     COALESCE(SUM(sync_status = 'failed'), 0) AS failed,
     COALESCE(SUM(sync_status = 'conflict'), 0) AS conflict
     FROM samples WHERE deleted_at IS NULL
   ''',
-        variables: [Variable(_now().toUtc().subtract(const Duration(days: 7)))],
+        variables: [
+          Variable(_now().toUtc().subtract(const Duration(days: 7))),
+          Variable(_now().toUtc()),
+        ],
         readsFrom: {db.samples},
       )
       .map(
@@ -353,5 +356,10 @@ class LocalSampleRepository {
         ),
       );
   Future<LocalStatistics> getStatistics() => _statistics().getSingle();
-  Stream<LocalStatistics> watchStatistics() => _statistics().watchSingle();
+  // Re-evaluate the time window after each committed sample change, rather
+  // than capturing a seven-day cutoff for the lifetime of the subscription.
+  Stream<LocalStatistics> watchStatistics() => db
+      .customSelect('SELECT 1', readsFrom: {db.samples})
+      .watch()
+      .asyncMap((_) => getStatistics());
 }
