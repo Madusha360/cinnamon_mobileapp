@@ -5,6 +5,8 @@ abstract final class RouteNames {
   static const capture = '/capture';
   static const endCapture = '/capture/end';
   static const sideCapture = '/capture/side';
+  static String cameraSandbox(String view) => '/camera/$view';
+  static String imageReview(String view) => '/camera/$view/review';
   static const history = '/history';
   static String sampleDetail(String id) =>
       '/history/samples/${Uri.encodeComponent(id)}';

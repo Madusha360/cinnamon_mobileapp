@@ -9,6 +9,8 @@ import '../../features/calibration/presentation/pages/calibration_page.dart';
 import '../../features/capture/presentation/pages/capture_page.dart';
 import '../../features/capture/presentation/pages/end_capture_page.dart';
 import '../../features/capture/presentation/pages/side_capture_page.dart';
+import '../../features/capture/presentation/pages/image_review_page.dart';
+import '../../features/capture/domain/capture_session.dart';
 import '../../features/history/presentation/pages/history_page.dart';
 import '../../features/history/presentation/pages/sample_detail_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
@@ -120,6 +122,9 @@ GoRouter createAppRouter({
     ),
     GoRoute(path: RouteNames.reports, builder: (_, _) => const ReportsPage()),
     GoRoute(path: RouteNames.results, builder: (_, _) => const ResultsPage()),
+    for (final view in CaptureView.values) GoRoute(path: RouteNames.cameraSandbox(view.name),
+      builder: (_, _) => view == CaptureView.end ? const EndCapturePage(sandbox: true) : const SideCapturePage(sandbox: true),
+      routes: [GoRoute(path: 'review', builder: (_, _) => ImageReviewPage(view: view))]),
   ],
   errorBuilder: (context, state) => Scaffold(
     body: SafeArea(

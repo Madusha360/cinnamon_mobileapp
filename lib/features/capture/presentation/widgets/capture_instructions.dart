@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/l10n/l10n.dart';
@@ -75,6 +76,13 @@ class CaptureInstructions extends StatelessWidget {
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodySmall,
         ),
+        if (kDebugMode) ...[
+          const SizedBox(height: 24),
+          StatusCard(title: text.cameraSandbox, message: text.cameraSandboxBody, icon: Icons.science_outlined,
+            child: OutlinedButton.icon(onPressed: () => context.push(RouteNames.cameraSandbox(endView ? 'end' : 'side')),
+              icon: const Icon(Icons.camera_alt_outlined), label: Text(text.openCameraSandbox))),
+          const SizedBox(height: 12), Text(text.cameraPermissionExplanation),
+        ],
       ],
     );
   }
