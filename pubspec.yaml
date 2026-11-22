@@ -23,6 +23,7 @@ dependencies:
   camera: ^0.12.2
   permission_handler: ^13.0.2
   image: ^4.13.1
+  crypto: ^3.0.8
 
 dev_dependencies:
   flutter_test:

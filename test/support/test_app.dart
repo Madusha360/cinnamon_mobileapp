@@ -13,6 +13,11 @@ import 'package:quillgrade_mobile/core/database/database_provider.dart';
 import 'package:quillgrade_mobile/core/storage/image_storage_service.dart';
 import 'package:quillgrade_mobile/features/samples/data/local_sample_repository.dart';
 import 'package:quillgrade_mobile/features/samples/presentation/providers/sample_providers.dart';
+import 'package:quillgrade_mobile/features/capture/data/camera_service.dart';
+import 'package:quillgrade_mobile/features/capture/data/image_quality_service.dart';
+import 'package:quillgrade_mobile/features/capture/presentation/providers/capture_provider.dart';
+import 'package:quillgrade_mobile/features/cinnamon_detection/data/model_loader.dart';
+import 'package:quillgrade_mobile/features/cinnamon_detection/presentation/providers/detection_provider.dart';
 import 'package:quillgrade_mobile/app/app.dart';
 import 'package:quillgrade_mobile/app/router/app_router.dart';
 import 'package:quillgrade_mobile/app/router/route_names.dart';
@@ -32,6 +37,13 @@ class PreloadedStudyBundle extends CachingAssetBundle {
   @override
   Future<ByteData> load(String key) async =>
       ByteData.sublistView(utf8.encode(json));
+}
+
+class PreloadedModelLoader extends ModelLoader {
+  PreloadedModelLoader(this.result);
+  final ModelLoadResult result;
+  @override
+  Future<ModelLoadResult> load() async => result;
 }
 
 class MemoryPreferencesStore implements AppPreferencesStore {
@@ -62,6 +74,8 @@ Future<GoRouter> pumpTestApp(
   AppDatabase? database,
   ImageStorageService? images,
   LocalSampleRepository? repository,
+  CameraService? camera,
+  ImageQualityService? quality,
 }) async {
   tester.view.devicePixelRatio = 1;
   tester.view.physicalSize = size;
@@ -87,12 +101,21 @@ Future<GoRouter> pumpTestApp(
     () =>
         rootBundle.loadString(CinnamonGradeDataSource.assetPath, cache: false),
   );
+  // As with the grade bundle, resolve native asset transport outside fake time.
+  // This still executes the real loader against the actual (absent) model asset.
+  final modelLoad = await tester.runAsync(() => ModelLoader().load());
   await tester.pumpWidget(
     ProviderScope(
       key: UniqueKey(),
       retry: (_, _) => null,
       overrides: [
         appDatabaseProvider.overrideWithValue(db),
+        detectionModelLoaderProvider.overrideWithValue(
+          PreloadedModelLoader(modelLoad!),
+        ),
+        if (camera != null) cameraServiceProvider.overrideWithValue(camera),
+        if (quality != null)
+          imageQualityServiceProvider.overrideWithValue(quality),
         if (images != null) imageStorageProvider.overrideWithValue(images),
         if (repository != null)
           sampleRepositoryProvider.overrideWithValue(repository),

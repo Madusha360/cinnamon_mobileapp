@@ -4,6 +4,14 @@ An independent Flutter mobile app for inspecting two views of the **same physica
 
 This repository is the standalone mobile project. Its existing directory name, `cinnamon_mobileapp`, is retained; it serves as the requested `QuillGrade-Mobile/` root. `pubspec.yaml`, `lib/`, `android/`, `ios/`, `assets/`, `test/` and `integration_test/` are directly here. No web dashboard or backend is included or accessed.
 
+## Phase 4 — detection infrastructure, model unavailable
+
+The existing camera now has conditional integration for typed detection states, isolate-based preprocessing, bounding-box mapping, consecutive-frame validation and final-photo revalidation. Production capture remains blocked. No cinnamon dataset could be inspected: the supplied Drive folder returned a sign-in page, and the workspace contains only branding/platform images. **No model has been trained, exported, installed or accuracy-tested.** No native inference runner is installed and no inference stream runs without one. See [Phase 4 status and verification](docs/PHASE_4_DETECTION.md), [dataset audit](docs/DATASET_AUDIT.md) and [annotation/training tooling](ml/cinnamon_detection/README.md).
+
+## Phase 3 — real camera infrastructure
+
+The End/Side camera sandbox uses the real rear camera, runtime permission handling, supported flash/focus controls, lifecycle management and original-quality temporary photographs. Review supports zoom, EXIF orientation, quality warnings, retake and discard. It is available only in debug builds from Capture → End/Side instructions → **Open camera sandbox**. Temporary photographs never become grading samples or sync jobs. Physical-device verification is separate from mocked automated tests; see [Phase 3 camera verification and device instructions](docs/PHASE_3_CAMERA.md).
+
 ## Phase 2 — offline persistence
 
 Drift/SQLite now stores samples, private image references, nullable measurement/finishing results, calibrations, local sync jobs, preferences, study notes and model metadata. Home and History read real reactive local data. No production records are seeded. Sample capture still requires a real detector and remains blocked.
@@ -25,7 +33,7 @@ Screens: introduction, Home, Capture preparation, End/Side positioning guides, H
 The app deliberately reports unavailable capabilities:
 
 - SQLite is connected. A fresh workspace shows real zero counts; missing result values remain Not Measured / Not Analyzed.
-- Camera capture is Phase 3. No camera permissions are requested yet.
+- Camera permission is requested only when opening the debug camera sandbox. Accepted production capture remains blocked.
 - A trained cinnamon detector and validated thresholds are required for accepted capture (Phase 4).
 - OpenCV, ArUco, calibration and actual measurements are Phase 5.
 - Finishing weights/classes are Phase 6. No predicted labels or scores exist in this build.
@@ -35,7 +43,7 @@ The app deliberately reports unavailable capabilities:
 
 ## Run
 
-Validated development SDK: Flutter **3.47.5**, Dart **3.13.4**. Android and iOS project scaffolds are included; iOS builds require macOS/Xcode. Android currently uses the generated SDK configuration. Release signing must be configured before distribution.
+Validated development SDK: Flutter **3.47.5**, Dart **3.13.4**. Install Android SDK 37 for compilation; Android devices require API 24 or newer. The iOS target is 15.0; iOS builds require macOS/Xcode. Release signing must be configured before distribution.
 
 ```sh
 flutter pub get
@@ -54,7 +62,7 @@ flutter build apk --debug
 flutter test integration_test/app_test.dart -d <android-device-id>
 ```
 
-The integration test exercises native startup and guest navigation; it may complete onboarding on the test device. Run on a test installation. Unit/widget tests use isolated in-memory/file-backed SQLite, temporary images, a test-only validation gate and the real bundled grade JSON. See [Phase 2 verification](docs/PHASE_2_STORAGE.md) for current results. The prior 33 test scenarios are retained; the Home empty-state assertion now checks real SQLite zero counts. [UI and Study validation](docs/UI_STUDY_GUIDE.md) and [Phase 1 validation](docs/PHASE_1_VALIDATION.md) describe the earlier baselines.
+The integration test exercises native startup and guest navigation; it may complete onboarding on the test device. Run on a test installation. Unit/widget tests use isolated SQLite, temporary images, test-only camera/detector adapters and the real bundled grade JSON. Current verification: **122 Flutter tests and 6 Python tooling tests passed**, with all 93 Phase 1–3 tests retained. Analysis is clean and the Android debug APK builds. See [Phase 4 verification](docs/PHASE_4_DETECTION.md) for results and the Windows formatting-path workaround, [Phase 3](docs/PHASE_3_CAMERA.md) for camera history and [Phase 2](docs/PHASE_2_STORAGE.md) for storage. Automated fixtures do not verify a real cinnamon model or physical camera.
 
 ## Architecture and handoff
 
@@ -66,4 +74,4 @@ The integration test exercises native startup and guest navigation; it may compl
 
 Dependency APIs were checked against the publisher documentation for [Riverpod](https://pub.dev/packages/flutter_riverpod), [GoRouter](https://pub.dev/documentation/go_router/latest/go_router/StatefulShellRoute-class.html), [shared preferences](https://pub.dev/packages/shared_preferences) and [Flutter localization](https://docs.flutter.dev/ui/internationalization). `pubspec.lock` records the resolved versions. Only dependencies used by this phase are installed.
 
-Next: **Phase 3 — real camera acquisition and private-image handling**, preserving blocked grading until a trained detector is integrated and validated. No Git branches, commits or pushes are changed by this implementation task.
+Next: authorize dataset access, audit/annotate real images, train/evaluate a detector and verify an actual exported model/runtime before enabling validated temporary capture. The repository validation gate and later-phase grading requirements remain in force. No Git branches, commits, pushes or merges are changed by this implementation task.

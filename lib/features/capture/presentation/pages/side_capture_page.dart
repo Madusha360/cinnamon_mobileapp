@@ -10,6 +10,7 @@ class SideCapturePage extends StatelessWidget {
   final bool sandbox;
 
   @override
-  Widget build(BuildContext context) =>
-      sandbox && kDebugMode ? const CameraCaptureView(view: CaptureView.side) : const CaptureInstructions(endView: false);
+  Widget build(BuildContext context) => sandbox && kDebugMode
+      ? const CameraCaptureView(view: CaptureView.side)
+      : const CaptureInstructions(endView: false);
 }

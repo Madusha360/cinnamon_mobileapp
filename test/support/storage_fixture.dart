@@ -24,7 +24,8 @@ class FixtureValidationGate implements CaptureValidationGate {
 class StorageFixture {
   StorageFixture._(this.directory, this.db, this.end, this.side) {
     images = ImageStorageService(
-      temporaryDirectory: () async => Directory(p.join(directory.path, 'camera_cache')),
+      temporaryDirectory: () async =>
+          Directory(p.join(directory.path, 'camera_cache')),
       root: () async => Directory(p.join(directory.path, 'originals')),
     );
     clock = time;

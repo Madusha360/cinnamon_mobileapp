@@ -1,0 +1,17 @@
+# Cinnamon quill detection annotations
+
+This is a labeling protocol, not a set of ground-truth annotations. The actual dataset remains inaccessible.
+
+1. Preserve originals. Make explicitly upright annotation derivatives if EXIF rotation is present and retain the original-to-derivative mapping. Never draw boxes on one orientation and train a different orientation.
+2. Assign one physical `sample_id` to every view/frame of the same quill, including retakes and later sessions. Give negative objects identities too. Record capture `session_id`, actual `background_id`, background category, phone ID and provenance. These IDs must reflect reality rather than convenient filenames.
+3. Have a knowledgeable reviewer confirm the material is a cinnamon quill. Uncertain identity stays excluded/pending. Brown color, tubular shape or an existing finishing label is insufficient.
+4. Draw tight visible-object boxes with these proposed classes: `cinnamon_quill_end`, `cinnamon_quill_side`, `non_cinnamon`. The last name means **non-target for quill detection**; it includes cinnamon powder/leaves, not a botanical assertion that these contain no cinnamon. Keep multi-object scenes and annotate each visible target/distractor.
+5. An End label requires a visibly identifiable quill end cross-section. A Side label requires useful visible quill surface. Oblique/partial/occluded/uncertain views should be flagged for review and included in a rejection challenge set; do not relabel them as valid merely to improve class counts. The current three-class schema is provisional until the actual dataset is audited.
+6. Mark pen, pencil, plastic pipe, wooden rod, rolled paper, other cylindrical objects, powder, leaves, empty background and marker-only negatives explicitly. Draw class-2 boxes on visible distractors. Empty scenes have reviewed empty box lists, not synthetic full-image boxes.
+7. Include white, black, green, wooden and textured surfaces, indoor/outdoor scenes, different lighting/distances/phones. Preserve actual surface IDs for unseen-background evaluation. Do not use a single recurring ArUco marker/background as a shortcut label. Side View has no marker requirement.
+8. Record blur, darkness, clipping, occlusion, target count and visibility in review notes/challenge-set metadata. A future visibility validator may need more labels than boxes. Reject corrupt images and resolve duplicate/near-duplicate provenance before splitting.
+9. Review box bounds, class meaning and identity consistency. A second reviewer should inspect ambiguous examples and a documented sample of the rest. Export the exact image list, boxes and review record; do not treat auto-labels as reviewed truth without human correction.
+
+Use a local annotation installation such as CVAT or Label Studio. The provided `dataset_tools.py template` command creates pending records with null view/boxes; it performs no auto-labeling. `prepare` accepts only reviewed records with required metadata, decoded upright images and valid boxes, then writes a new YOLO dataset without modifying source files. See [ml/cinnamon_detection/README.md](../ml/cinnamon_detection/README.md) for the precise JSON schema and commands.
+
+Prepare train/validation/test by connected physical-sample, session, surface and exact-duplicate groups. Review near-duplicates manually. Keep the final test set sealed while tuning confidence, quality, stability and rejection policy. Dataset size and sufficiency remain to be assessed; there is no universal image-count threshold that establishes reliable recognition.

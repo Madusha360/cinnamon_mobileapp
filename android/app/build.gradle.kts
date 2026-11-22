@@ -6,7 +6,8 @@ plugins {
 
 android {
     namespace = "com.quillgrade.quillgrade_mobile"
-    compileSdk = flutter.compileSdkVersion
+    // permission_handler_android requires API 37; runtime support stays API 24+.
+    compileSdk = maxOf(flutter.compileSdkVersion, 37)
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

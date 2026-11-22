@@ -47,3 +47,12 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Raw datasets, downloads and experiment artifacts stay local by default.
+/ml/cinnamon_detection/dataset/
+/ml/cinnamon_detection/experiments/
+/ml/cinnamon_detection/.venv/
+**/__pycache__/
+/assets/models/*.tflite
+/assets/models/*.onnx
+/assets/models/*.pt

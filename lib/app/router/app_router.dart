@@ -122,9 +122,19 @@ GoRouter createAppRouter({
     ),
     GoRoute(path: RouteNames.reports, builder: (_, _) => const ReportsPage()),
     GoRoute(path: RouteNames.results, builder: (_, _) => const ResultsPage()),
-    for (final view in CaptureView.values) GoRoute(path: RouteNames.cameraSandbox(view.name),
-      builder: (_, _) => view == CaptureView.end ? const EndCapturePage(sandbox: true) : const SideCapturePage(sandbox: true),
-      routes: [GoRoute(path: 'review', builder: (_, _) => ImageReviewPage(view: view))]),
+    for (final view in CaptureView.values)
+      GoRoute(
+        path: RouteNames.cameraSandbox(view.name),
+        builder: (_, _) => view == CaptureView.end
+            ? const EndCapturePage(sandbox: true)
+            : const SideCapturePage(sandbox: true),
+        routes: [
+          GoRoute(
+            path: 'review',
+            builder: (_, _) => ImageReviewPage(view: view),
+          ),
+        ],
+      ),
   ],
   errorBuilder: (context, state) => Scaffold(
     body: SafeArea(

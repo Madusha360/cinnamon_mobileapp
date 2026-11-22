@@ -78,10 +78,20 @@ class CaptureInstructions extends StatelessWidget {
         ),
         if (kDebugMode) ...[
           const SizedBox(height: 24),
-          StatusCard(title: text.cameraSandbox, message: text.cameraSandboxBody, icon: Icons.science_outlined,
-            child: OutlinedButton.icon(onPressed: () => context.push(RouteNames.cameraSandbox(endView ? 'end' : 'side')),
-              icon: const Icon(Icons.camera_alt_outlined), label: Text(text.openCameraSandbox))),
-          const SizedBox(height: 12), Text(text.cameraPermissionExplanation),
+          StatusCard(
+            title: text.cameraSandbox,
+            message: text.cameraSandboxBody,
+            icon: Icons.science_outlined,
+            child: OutlinedButton.icon(
+              onPressed: () => context.push(
+                RouteNames.cameraSandbox(endView ? 'end' : 'side'),
+              ),
+              icon: const Icon(Icons.camera_alt_outlined),
+              label: Text(text.openCameraSandbox),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(text.cameraPermissionExplanation),
         ],
       ],
     );

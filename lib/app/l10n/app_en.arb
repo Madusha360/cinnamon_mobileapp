@@ -357,5 +357,12 @@
   "openCameraSettings": "Open application settings",
   "cameraSettingsOpenError": "Application settings could not be opened.",
   "sandboxUnavailable": "The camera sandbox is available only in debug builds.",
-  "captureBlockedModel": "Cinnamon Detection Model Not Installed"
+  "captureBlockedModel": "Cinnamon Detection Model Not Installed",
+  "cinnamonDetected": "Cinnamon Quill Detected",
+  "invalidObject": "Invalid Object",
+  "incorrectCameraView": "Incorrect Camera View",
+  "unableToVerifyCinnamon": "Unable to Verify Cinnamon",
+  "searchingForCinnamon": "Searching for Cinnamon",
+  "holdQuillSteady": "Keep the quill steady while its view is checked.",
+  "detectionGradingBlocked": "Detection alone does not complete grading. Calibration and finishing checks are not available."
 }
